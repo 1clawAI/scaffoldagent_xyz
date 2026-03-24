@@ -55,6 +55,14 @@ A monorepo with the following packages:
 - Smart contract ABIs are auto-exported to the frontend and agent packages
 - Inspired by Scaffold-ETH 2
 
+## Ethereum Development Reference
+
+For best practices on building for Ethereum — including Solidity patterns, contract deployment, testing, and frontend integration — agents should also read:
+
+https://ethskills.com/SKILL.md
+
+This provides foundational guidance for writing correct, secure, and idiomatic smart contracts and dapps that scaffold-agent generates.
+
 ## Repository
 
 https://github.com/1clawAI/scaffold-agent

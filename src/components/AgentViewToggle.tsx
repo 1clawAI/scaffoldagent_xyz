@@ -39,10 +39,14 @@ const SKILL_LINES = [
   "  - ABIs: auto-exported to frontend + agent",
   "  - Inspired by Scaffold-ETH 2",
   "",
+  "## Ethereum Development Reference",
+  "  See: https://ethskills.com/SKILL.md",
+  "",
   "## Repository",
   "  https://github.com/1clawAI/scaffold-agent",
   "",
   "> SKILL.md parsed. scaffold-agent added to tool registry.",
+  "> Loading ethskills.com/SKILL.md for Ethereum best practices...",
   "> Ready to build onchain AI agents._",
 ];
 
