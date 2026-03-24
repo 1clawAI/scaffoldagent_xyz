@@ -40,11 +40,11 @@ A monorepo with the following packages:
 2. **Run the CLI** — Execute `npx scaffold-agent` in a clean directory. The CLI is interactive and will prompt for each configuration option.
 3. **Select options** — Choose the appropriate framework, LLM provider, and secret management based on the user's requirements.
 4. **Post-scaffold setup** — After generation, the agent should:
-   - `cd` into the project directory
-   - Run `just install` to install dependencies
+   - `cd` into the project directory (npm install runs automatically during scaffolding)
    - Run `just chain` to start a local blockchain
-   - Run `just deploy` to deploy contracts
-   - Run `just dev` to start the frontend
+   - Run `just fund` to fund the deployer and agent wallets
+   - Run `just deploy` to deploy contracts and generate ABI types
+   - Run `just start` to launch the frontend or agent app
 5. **Iterate** — Modify the generated agent logic in the `packages/agent/` directory. The agent has an Ethereum wallet and can sign transactions, read contract state, and call LLM APIs.
 
 ## Key Architecture
