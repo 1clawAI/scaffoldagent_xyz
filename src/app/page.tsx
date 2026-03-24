@@ -39,7 +39,7 @@ export default function Home() {
             alt="scaffold-agent logo"
             width={280}
             height={200}
-            className="mx-auto mb-6"
+            className="mx-auto mb-6 w-[200px] sm:w-[280px] h-auto"
             priority
           />
 
