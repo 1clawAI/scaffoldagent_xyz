@@ -1,0 +1,38 @@
+# scaffold-agent
+
+> Interactive CLI to scaffold monorepo projects for onchain AI agents
+
+scaffold-agent generates full-stack projects with smart contracts, a frontend, and AI agent infrastructure in one command.
+
+## Quick Start
+
+```
+npx scaffold-agent
+```
+
+## Documentation
+
+- [SKILL.md](https://scaffoldagent.xyz/SKILL.md): Agent-readable skill file with usage instructions, options, and post-scaffold workflow
+- [GitHub](https://github.com/1clawAI/scaffold-agent): Source code and README
+- [Ethereum Best Practices](https://ethskills.com/SKILL.md): Foundational guidance for building on Ethereum
+
+## Overview
+
+scaffold-agent is an open-source CLI that scaffolds a monorepo containing:
+
+- Smart contracts (Foundry or Hardhat) with auto-deploy and ABI type generation
+- Frontend (Next.js, Vite, or Python/Google A2A) with WalletConnect integration
+- An LLM-powered agent with an Ethereum wallet for onchain interaction
+
+Supports multiple LLM providers (OpenAI, Anthropic, Gemini, 1Claw) and secret management options (HSM vault, encrypted files, .env).
+
+## Post-Scaffold Workflow
+
+1. `just chain` — Start a local blockchain
+2. `just fund` — Fund deployer and agent wallets
+3. `just deploy` — Deploy contracts and generate ABI types
+4. `just start` — Launch the frontend or agent
+
+## Built by
+
+[1Claw](https://1claw.xyz) — Inspired by Scaffold-ETH 2
