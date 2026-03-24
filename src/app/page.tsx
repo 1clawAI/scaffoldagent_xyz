@@ -31,7 +31,7 @@ const links = [
 
 export default function Home() {
   return (
-    <main className="relative h-screen flex flex-col items-center justify-center px-6 py-16 overflow-auto">
+    <main className="relative min-h-screen flex flex-col items-center justify-center px-6 py-12">
       <AgentViewToggle>
         <article className="relative z-10 max-w-2xl w-full text-center">
           <Image
