@@ -2,7 +2,7 @@ import Image from "next/image";
 import AgentViewToggle from "@/components/AgentViewToggle";
 import CopyButton from "@/components/CopyButton";
 
-const COMMAND = "npx scaffold-agent";
+const COMMAND = "npx scaffold-agent@latest";
 
 const features = [
   {
