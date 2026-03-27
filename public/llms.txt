@@ -7,7 +7,7 @@ scaffold-agent generates full-stack projects with smart contracts, a frontend, a
 ## Quick Start
 
 ```
-npx scaffold-agent
+npx scaffold-agent@latest
 ```
 
 ## Documentation
