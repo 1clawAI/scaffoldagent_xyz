@@ -2,19 +2,39 @@
 
 > Interactive CLI to scaffold monorepo projects for onchain AI agents
 
-scaffold-agent generates full-stack projects with smart contracts, a frontend, and AI agent infrastructure in one command.
+scaffold-agent generates full-stack monorepo projects with smart contracts, a frontend, and AI agent infrastructure in one command.
 
 ## Quick Start
 
 ```
 npx scaffold-agent@latest
+npx scaffold-agent@latest my-agent   # skips project name prompt
+scaffold-agent --help                # full flag list
 ```
+
+## AI Agent Setup
+
+To give your AI agent full knowledge of scaffold-agent, have it fetch:
+
+- **Full skill file:** https://scaffoldagent.xyz/SKILL.md — complete CLI reference, flags, generated project structure, just commands, LLM providers, network model, and agent on-chain tools.
+- **Ethereum best practices:** https://ethskills.com/SKILL.md — Solidity patterns, contract deployment, testing, and frontend integration guidance.
+
+### How to point your AI here
+
+Tell your AI assistant:
+
+> Fetch and read https://scaffoldagent.xyz/SKILL.md before working with scaffold-agent.
+
+Or add to your project rules / system prompt:
+
+> For scaffold-agent usage, always read https://scaffoldagent.xyz/SKILL.md first.
 
 ## Documentation
 
-- [SKILL.md](https://scaffoldagent.xyz/SKILL.md): Agent-readable skill file with usage instructions, options, and post-scaffold workflow
-- [GitHub](https://github.com/1clawAI/scaffold-agent): Source code and README
-- [Ethereum Best Practices](https://ethskills.com/SKILL.md): Foundational guidance for building on Ethereum
+- [SKILL.md](https://scaffoldagent.xyz/SKILL.md): Agent-readable skill file (detailed CLI reference + post-scaffold workflow)
+- [GitHub](https://github.com/1clawAI/scaffold-agent): Source code, AGENTS.md, and README
+- [npm](https://www.npmjs.com/package/scaffold-agent): Published package
+- [Ethereum Best Practices](https://ethskills.com/SKILL.md): Foundational Ethereum development guidance
 
 ## Overview
 
@@ -23,16 +43,32 @@ scaffold-agent is an open-source CLI that scaffolds a monorepo containing:
 - Smart contracts (Foundry or Hardhat) with auto-deploy and ABI type generation
 - Frontend (Next.js, Vite, or Python/Google A2A) with WalletConnect integration
 - An LLM-powered agent with an Ethereum wallet for onchain interaction
+- Agent on-chain tools (contract reads, 1Claw Intents simulate/submit)
+- Unified network model with `scaffold.config.ts` and `getActiveNetwork()`
+- Optional multi-agent swarm mode (1–64 wallets with roster and UI)
 
-Supports multiple LLM providers (OpenAI, Anthropic, Gemini, 1Claw) and secret management options (HSM vault, encrypted files, .env).
+Supports multiple LLM providers (OpenAI, Anthropic, Gemini, 1Claw Shroud with 6 upstream options) and secret management (HSM vault, encrypted files, .env).
+
+Built on Scaffold-ETH 2 patterns, Scaffold UI (@scaffold-ui/hooks, @scaffold-ui/components, @scaffold-ui/debug-contracts), RainbowKit, wagmi, and viem.
 
 ## Post-Scaffold Workflow
 
-1. `just chain` — Start a local blockchain
-2. `just fund` — Fund deployer and agent wallets
+1. `just chain` — Start a local blockchain (second terminal)
+2. `just fund` — Fund deployer and agent wallets (100 ETH each)
 3. `just deploy` — Deploy contracts and generate ABI types
 4. `just start` — Launch the frontend or agent
 
+## Key Features
+
+- Non-interactive mode (`-y`) for CI/automation with full flag control
+- Config file support (`--from-config agent.json`, `--dump-config`)
+- Swarm mode (`--swarm <n>`) for multi-agent setups
+- 1Claw Shroud LLM proxy with token billing or BYOK
+- Unified network switching (`just use-network base`)
+- ABI type generation (Scaffold-ETH 2 pattern)
+- Debug contracts page (`/debug` on Next.js)
+- ERC-8004 / Agent0 identity page (`/identity`)
+
 ## Built by
 
-[1Claw](https://1claw.xyz) — Inspired by Scaffold-ETH 2
+[1Claw](https://1claw.xyz) — Inspired by [Scaffold-ETH 2](https://scaffoldeth.io)
