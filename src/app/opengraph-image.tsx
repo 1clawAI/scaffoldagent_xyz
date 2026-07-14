@@ -34,7 +34,7 @@ export default function Image() {
               width: "48px",
               height: "48px",
               borderRadius: "12px",
-              background: "#22c55e",
+              background: "#DC143C",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -69,7 +69,7 @@ export default function Image() {
           }}
         >
           <span>Build </span>
-          <span style={{ color: "#22c55e", marginLeft: "16px" }}>
+          <span style={{ color: "#DC143C", marginLeft: "16px" }}>
             Onchain AI Agents
           </span>
         </div>
@@ -98,7 +98,7 @@ export default function Image() {
             padding: "16px 32px",
           }}
         >
-          <span style={{ color: "#22c55e", fontSize: "24px", fontWeight: 600 }}>
+          <span style={{ color: "#DC143C", fontSize: "24px", fontWeight: 600 }}>
             $
           </span>
           <span

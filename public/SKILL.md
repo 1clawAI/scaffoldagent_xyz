@@ -4,7 +4,7 @@
 
 scaffold-agent is an interactive CLI that scaffolds monorepo projects for building **onchain AI agents**. It generates a full-stack project with smart contracts, a frontend, and agent infrastructure in one command.
 
-**Terminology:** **1claw** = [1claw.xyz](https://1claw.xyz) (vault, Shroud LLM proxy). **OpenClaw** ([openclaw.ai](https://openclaw.ai)) is a different product.
+**Terminology:** **1claw** = [1claw.xyz](https://1claw.xyz) (vault, Shroud LLM proxy, Intents API). **OpenClaw** ([openclaw.ai](https://openclaw.ai)) is a different product. **@1claw/mcp** = MCP server with 44 tools for vault secrets, Intents API, signing keys, treasury, and execution intents.
 
 ## Prerequisites
 
@@ -30,8 +30,9 @@ scaffold-agent --version
 | `--env-password` | Password for 1Claw or encrypted secrets (min 6 chars, required with `-y` for oneclaw/encrypted) |
 | `--defer-oneclaw-api-key` | Defer 1Claw API key entry (useful for CI/automation) |
 | `--oneclaw-intents` | Register 1Claw API agent with Intents enabled (with `-y`) |
+| `--oneclaw-signing-chains` | Comma-separated chains for HSM signing keys (ethereum, bitcoin, solana, xrp, cardano, tron; default ethereum) |
 | `--llm` | `oneclaw` \| `gemini` \| `openai` \| `anthropic` |
-| `--shroud-upstream` | `openai` \| `anthropic` \| `google` \| `gemini` \| `mistral` \| `cohere` \| `openrouter` |
+| `--shroud-upstream` | `openai` \| `anthropic` \| `google` \| `gemini` \| `mistral` \| `cohere` \| `openrouter` \| `darkbloom` \| `venice` |
 | `--shroud-billing` | `token_billing` \| `provider_api_key` |
 | `--shroud-provider-api-key` | Required for `provider_api_key` in `-y` |
 | `--oneclaw-agent-id` / `--oneclaw-agent-api-key` | For `oneclaw` LLM when secrets are not `oneclaw` |
@@ -51,7 +52,7 @@ scaffold-agent --version
 1. **Project name** — alphanumeric, hyphens, underscores
 2. **Secrets management** — 1Claw (HSM vault), Encrypted file (AES-256-GCM), or Plain `.env`
 3. **Agent identity** — generate Ethereum wallet(s) for the agent (`--swarm` for multiple)
-4. **Ampersend SDK** — optional `@ampersend_ai/ampersend-sdk` integration
+4. **Ampersend SDK** — optional `@ampersend_ai/ampersend-sdk` integration (signing key stored in vault or encrypted env; adds `x402_paid_fetch` tool)
 5. **LLM Provider** — 1Claw (Shroud), Gemini, OpenAI, or Anthropic
 6. **Chain framework** — Foundry, Hardhat, or None
 7. **App framework** — Next.js, Vite, or Python (Google A2A)
@@ -60,7 +61,7 @@ scaffold-agent --version
 
 ```
 project-root/
-├── justfile                      # just chain / deploy / start / generate
+├── justfile                      # just chain / deploy / start / quickstart / doctor
 ├── scripts/
 │   ├── secrets-crypto.mjs        # encrypt/decrypt .env.secrets.encrypted
 │   ├── with-secrets.mjs          # prompt password, run deploy/start with env
@@ -70,27 +71,36 @@ project-root/
 │   ├── generate-deployer.mjs     # create deployer wallet if missing (+ auto-fund)
 │   ├── fund-deployer.mjs         # fund deployer + agents (incl. swarm roster)
 │   ├── check-network.mjs         # validate targetNetwork has deployed contracts
+│   ├── doctor.mjs                # just doctor — health check
 │   └── swarm-agents.mjs          # just swarm — append wallets (Next/Vite)
 ├── packages/
 │   ├── foundry/ (or hardhat/)    # Solidity contracts
 │   └── nextjs/ (or vite/ or python/)
 │       ├── public/agents.json    # swarm roster (addresses only; Next/Vite)
 │       ├── app/
-│       │   ├── page.tsx              # shadcn chat UI
+│       │   ├── layout.tsx            # root layout + shared Header nav
+│       │   ├── page.tsx              # chat UI with suggested prompts
 │       │   ├── identity/page.tsx     # ERC-8004 / Agent0 identity + register
+│       │   ├── balances/page.tsx     # deployer + agent balances
+│       │   ├── ens/page.tsx          # ENS resolution + registration links
 │       │   ├── swarm/page.tsx        # swarm list + local keygen hints
 │       │   ├── debug/page.tsx        # deployed contracts (Next only)
 │       │   └── api/
 │       │       ├── chat/route.ts     # LLM streaming API (Vercel AI SDK)
 │       │       └── agent0/lookup/route.ts
+│       ├── components/
+│       │   ├── Header.tsx            # shared nav (Chat, Balances, ENS, Identity, Swarm, Debug)
+│       │   └── ui/                   # shadcn components
 │       ├── lib/
 │       │   └── agent-onchain-tools.ts  # AI tool definitions for contract interaction
-│       ├── components/ui/            # shadcn components
-│       └── contracts/                # auto-generated ABI types
-├── .env                              # non-sensitive config (gitignored)
-├── .env.secrets.encrypted            # AES-256-GCM encrypted keys (if chosen)
+│       ├── contracts/                # auto-generated ABI types
+│       └── ...
+├── .cursor/mcp.json              # 1Claw MCP for Cursor (when 1Claw is selected)
+├── .mcp.json                     # 1Claw MCP for Claude Code (same server config)
+├── .env                          # non-sensitive config (gitignored)
+├── .env.secrets.encrypted        # AES-256-GCM encrypted keys (if chosen)
 ├── .gitignore
-├── package.json                      # monorepo root (npm workspaces)
+├── package.json                  # monorepo root (npm workspaces)
 └── README.md
 ```
 
@@ -101,28 +111,30 @@ project-root/
 3. **Select options** — Choose the appropriate framework, LLM provider, and secret management based on the user's requirements.
 4. **Post-scaffold setup** — After generation, the agent should:
    - `cd` into the project directory (npm install runs automatically during scaffolding)
+   - Run `just quickstart` for one-command local setup (chain + fund + deploy + start), OR:
    - Run `just chain` to start a local blockchain (second terminal)
    - Run `just fund` to fund the deployer and agent wallets (100 ETH each)
    - Run `just deploy` to deploy contracts and generate ABI types
    - Run `just start` to launch the frontend or agent app
-5. **Iterate** — Modify the generated agent logic in the `packages/` directory. The agent has an Ethereum wallet and can sign transactions, read contract state, and call LLM APIs.
-
-**Order matters:** the local node (`just chain`) must be up before `just fund` / `just deploy`. Most people run `just chain` first, then scaffold in another terminal — or run `just fund` after `cd` into the project.
+5. **Validate** — Run `just doctor` to health-check the environment, `.env`, 1Claw IDs, and package installs.
+6. **Iterate** — Modify the generated agent logic in the `packages/` directory.
 
 ## All Just Recipes
 
 | Recipe | Purpose |
 |---|---|
 | `just chain` | Start local blockchain (Anvil for Foundry, npx hardhat node for Hardhat) |
-| `just fund` | Fund DEPLOYER_ADDRESS + AGENT_ADDRESS + swarm addresses in `public/agents.json` (100 ETH each from account #0) |
+| `just fund` | Fund DEPLOYER_ADDRESS + AGENT_ADDRESS + swarm addresses (100 ETH each from account #0) |
 | `just deploy` | Deploy contracts and generate ABI types (`deployedContracts.ts`) |
 | `just start` | Launch frontend or agent dev server (runs `check-network` first as a warning) |
+| `just quickstart` | One-command local setup: chain (background) → fund → deploy → start |
+| `just doctor` | Health check: validate env, tools, 1Claw IDs, and package installs |
 | `just check-network` | Validate `targetNetwork` chainId has contracts in `deployedContracts.ts` |
 | `just use-network KEY` | Switch `targetNetwork` in `scaffold.config.ts` and run check (keys: ethereum, base, sepolia, baseSepolia, polygon, bnb, localhost) |
 | `just accounts` | Display QR codes for deployer and agent addresses |
-| `just balances` | Show native balance across all chains in network-definitions (deployer + agent; rpcOverrides) |
+| `just balances` | Show native balance across all chains in network-definitions |
 | `just generate` | Create deployer wallet (auto-funds if RPC available) |
-| `just swarm agents=N` | Add N swarm wallets (`public/agents.json` + `SWARM_AGENT_KEYS_JSON`; Next/Vite; default `agents=1`) |
+| `just swarm agents=N` | Add N swarm wallets (`public/agents.json` + `SWARM_AGENT_KEYS_JSON`) |
 | `just env KEY VALUE` | Update repo-root `.env` |
 | `just enc KEY VALUE` | Update `.env.secrets.encrypted` (prompts for password) |
 | `just vault PATH VALUE` | Store secret in 1Claw vault |
@@ -137,10 +149,8 @@ Generated projects use a single source of truth for the active EVM network:
 
 - **`scaffold.config.ts`** defines `targetNetwork` (e.g. `"localhost"`, `"base"`, `"sepolia"`) and optional `rpcOverrides`.
 - **`getActiveNetwork()`** resolves the full `NetworkDefinition` (chainId, RPC, block explorer) with overrides applied.
-- **AI agent tools** (`lib/agent-onchain-tools.ts`) default `chainId` and `chain` parameters to the active network — the model doesn't need to guess.
-- **`just check-network`** validates that `deployedContracts.ts` has entries for `targetNetwork`'s chainId.
-- **`just use-network <key>`** rewrites `targetNetwork` and runs the check in one step.
-- **`just start`** runs `check-network` as a precheck (warns if contracts are missing, but doesn't block the dev server).
+- **AI agent tools** (`lib/agent-onchain-tools.ts`) default `chainId` and `chain` parameters to the active network.
+- **`ONECLAW_CHAIN_NAMES`** maps `chainId` → 1Claw slug for all 29 EVM mainnets + testnets, plus non-EVM chains.
 
 ## Agent On-Chain Tools
 
@@ -149,9 +159,31 @@ Next.js and Vite projects include `lib/agent-onchain-tools.ts` — preset Vercel
 - **`list_deployed_contracts`** — enumerate addresses from `deployedContracts.ts` (hints active chain).
 - **`contract_read`** — call any view/pure function via RPC using the deployed ABI (defaults to active network).
 - **`oneclaw_intent_simulate`** — simulate a transaction via 1Claw Intents + Tenderly (when 1Claw SDK is included).
-- **`oneclaw_intent_submit`** — submit a signed transaction intent to 1Claw's TEE (keys never in the model).
+- **`oneclaw_intent_submit`** — submit a signed transaction intent to 1Claw's HSM/TEE (keys never in the model).
+- **`oneclaw_intent_sign_only`** — sign a transaction without broadcasting (for MEV protection, Flashbots, custom relayers).
+- **`oneclaw_list_signing_keys`** — list the agent's HSM-backed signing keys (address, chain, status).
+- **`oneclaw_list_transactions`** — list recent Intents API transactions for this agent.
+- **`x402_paid_fetch`** — paid HTTP requests over x402 (when Ampersend is enabled).
 
-The 1Claw intent tools default the `chain` parameter to the active network's 1Claw slug via a built-in `ONECLAW_CHAIN_NAMES` mapping.
+The 1Claw intent tools default the `chain` parameter to the active network's 1Claw slug via `ONECLAW_CHAIN_NAMES` — covering all 29 EVM mainnets, testnets, plus non-EVM chains (Bitcoin, Solana, XRP, Cardano, Tron).
+
+## 1Claw MCP Integration
+
+When 1Claw is selected, the scaffold generates `.cursor/mcp.json` (Cursor) and `.mcp.json` (Claude Code) with the **@1claw/mcp** server pre-configured. This gives AI agents access to 44 MCP tools: vault secrets, Intents API (simulate, submit, sign), signing key management, treasury proposals, and execution intents. Only `ONECLAW_AGENT_API_KEY` is required — agent ID and vault are auto-discovered.
+
+## HSM Signing Key Provisioning
+
+When 1Claw Intents is enabled (`--oneclaw-intents`), the CLI provisions HSM signing keys via the 1Claw API for each chain selected. Interactive runs show a multi-select; non-interactive runs use `--oneclaw-signing-chains` (comma-separated: `ethereum`, `bitcoin`, `solana`, `xrp`, `cardano`, `tron`; default `ethereum`). Keys are generated inside the HSM — never exposed. The CLI prints each address with testnet faucet links and dashboard deep links.
+
+## Intents API — Multi-Chain Signing
+
+The 1Claw Intents API supports HSM/TEE transaction signing across:
+
+- **29 EVM mainnets**: Ethereum, Base, Optimism, Arbitrum One, Polygon, Avalanche, BNB, zkSync Era, Linea, Scroll, Mantle, Blast, Gnosis, Fantom, Celo, Aurora, Metis, Moonbeam, Cronos, Sonic, World Chain, Polygon zkEVM, Sei, Kaia, Mode, Arbitrum Nova, Berachain, Taiko, Zora
+- **EVM testnets**: Sepolia, Base Sepolia, Holesky, Optimism Sepolia, Arbitrum Sepolia, Polygon Amoy, and more
+- **Non-EVM chains**: Bitcoin, Solana, XRP, Cardano, Tron
+
+Per-agent guardrails: allowed chains, recipient allowlists, per-tx value caps, daily spending limits.
 
 ## Swarm Mode
 
@@ -181,11 +213,13 @@ The 1Claw intent tools default the `chain` parameter to the active network's 1Cl
 | `SHROUD_LLM_PROVIDER` | Default `SHROUD_DEFAULT_MODEL` |
 |---|---|
 | `openai` | `gpt-4o` |
-| `anthropic` | `claude-sonnet-4-20250514` |
-| `google` or `gemini` | `gemini-2.0-flash` |
+| `anthropic` | `claude-sonnet-4-6-20250217` |
+| `google` or `gemini` | `gemini-2.5-flash` |
 | `mistral` | `mistral-large-latest` |
-| `cohere` | `command-r-plus` |
+| `cohere` | `command-a-03-2025` |
 | `openrouter` | `openai/gpt-4o` |
+| `darkbloom` | `gpt-4o` (E2E encrypted Apple Silicon TEE) |
+| `venice` | `llama-3.3-70b` (zero-retention + optional TEE/E2EE) |
 
 ### Direct LLM Defaults (not Shroud)
 
@@ -193,7 +227,7 @@ The 1Claw intent tools default the `chain` parameter to the active network's 1Cl
 |---|---|---|
 | **Gemini** | `gemini-2.5-flash` | `GOOGLE_GENERATIVE_AI_MODEL` |
 | **OpenAI** | `gpt-4o` | Edit the generated chat route |
-| **Anthropic** | `claude-sonnet-4-20250514` | Edit the generated chat route |
+| **Anthropic** | `claude-sonnet-4-6-20250217` | Edit the generated chat route |
 
 ## 1Claw Integration
 
@@ -204,31 +238,25 @@ When you choose 1Claw for secrets:
 - Stores deployer private key in vault (not on disk)
 - If agent identity is generated, stores it and registers the agent
 - If picking 1Claw as LLM, registers a Shroud agent and writes `ONECLAW_AGENT_ID` + `ONECLAW_AGENT_API_KEY`
+- If Intents enabled, provisions HSM signing keys for selected chains
 
 **`ONECLAW_AGENT_ID`** is a UUID, not an Ethereum `0x…` address. Chat uses `X-Shroud-Agent-Key`, not `Authorization: Bearer` for Shroud.
-
-### 1Claw IDs Programmatically
-
-With your `ONECLAW_API_KEY` you can call the same REST API the CLI uses:
-
-- `POST /v1/auth/api-key-token` → Bearer token
-- `GET /v1/vaults` → vault UUIDs (`ONECLAW_VAULT_ID`)
-- `GET /v1/agents` → agent UUIDs (`ONECLAW_AGENT_ID`)
-
-Use `just list-1claw` and `just sync-1claw-env` in generated projects.
 
 ## Key Architecture
 
 - Uses `just` as the task runner (https://just.systems)
 - Monorepo managed with npm workspaces
-- Agent wallet is auto-generated and funded on local/test networks
+- Agent wallet auto-generated and funded on local/test networks
 - Smart contract ABIs auto-exported to frontend (Scaffold-ETH 2 pattern via `deployedContracts.ts`)
 - Chat routes use the Vercel AI SDK for LLM streaming
-- 1Claw Shroud gateway supports token billing (no provider key needed) or BYOK mode
-- Built on Scaffold-ETH 2 patterns, Scaffold UI (`@scaffold-ui/hooks`, `@scaffold-ui/components`, `@scaffold-ui/debug-contracts`), RainbowKit, wagmi, and viem
-- Burner wallet for local dev via burner-connector (Scaffold-ETH / BuidlGuidl style)
-- Next.js apps: route-level `loading.tsx` skeletons, `next dev --turbo`, tree-shaken `lucide-react` icons
-- Vite apps: `React.lazy` route splitting with shared `PageLoading` skeleton
+- 1Claw Shroud gateway: 9 upstream providers, token billing or BYOK
+- @1claw/mcp: 44 MCP tools auto-configured for Cursor and Claude Code
+- Intents API: HSM/TEE signing across 29+ EVM chains + Bitcoin, Solana, XRP, Cardano, Tron
+- Built on Scaffold-ETH 2, Scaffold UI, RainbowKit, wagmi, and viem
+- 1Claw-inspired dark theme (crimson accent, Inter font, sticky glass header)
+- Shared Header nav (Chat, Balances, ENS, Identity, Swarm, Debug)
+- Suggested prompts on empty chat state
+- Burner wallet for local dev via burner-connector
 
 ## Key Environment Variables
 
@@ -246,31 +274,6 @@ Use `just list-1claw` and `just sync-1claw-env` in generated projects.
 | `SHROUD_DEFAULT_MODEL` | Override default model |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | Direct Gemini API key |
 | `GOOGLE_GENERATIVE_AI_MODEL` | Override Gemini model (default `gemini-2.5-flash`) |
-
-## Non-Interactive / Automation (`-y`)
-
-Use `-y` / `--non-interactive` for CI or agents (no prompts).
-
-- `--env-password` (≥ 6 chars) is required when `--secrets` is `oneclaw` or `encrypted`.
-- `--defer-oneclaw-api-key` — skip `ONECLAW_API_KEY` at scaffold time.
-- `--oneclaw-intents` — register 1Claw agent with Intents enabled.
-- Shroud + `-y`: `--llm oneclaw` with `--secrets none` requires `--oneclaw-agent-id` and `--oneclaw-agent-api-key`. `--shroud-billing provider_api_key` requires `--shroud-provider-api-key`.
-
-Minimal example:
-
-```bash
-npx scaffold-agent@latest -y my-app \
-  --env-password 'your-password-here' \
-  --defer-oneclaw-api-key \
-  --skip-npm-install \
-  --skip-auto-fund
-```
-
-## Security
-
-- Never commit real API keys, agent keys, or deployer private keys.
-- `ONECLAW_AGENT_ID` is a UUID, not an Ethereum address.
-- Use `--dump-config` for shareable config; secrets are stripped.
 
 ## Ethereum Development Reference
 

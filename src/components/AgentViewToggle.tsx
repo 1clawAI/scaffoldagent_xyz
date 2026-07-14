@@ -21,30 +21,26 @@ const SKILL_LINES = [
   "  - Smart Contracts (Foundry / Hardhat)",
   "  - Frontend (Next.js / Vite / Python A2A)",
   "  - Agent with Ethereum wallet + LLM integration",
-  "  - Agent on-chain tools (contract reads, 1Claw Intents)",
+  "  - 7 agent on-chain tools (reads, intents, signing, x402)",
+  "  - 44 MCP tools via @1claw/mcp (auto-configured)",
+  "  - HSM signing keys (EVM + BTC, SOL, XRP, ADA, TRX)",
   "  - Unified network model (scaffold.config.ts)",
   "  - Optional multi-agent swarm mode (1-64 wallets)",
   "",
-  "## How an AI Agent Should Use This Tool",
-  "  1. Determine the user's goal",
-  "  2. Execute: npx scaffold-agent@latest",
-  "  3. Select options based on requirements",
-  "  4. Post-scaffold:",
-  "     just chain    # start local blockchain",
-  "     just fund     # fund deployer + agent wallets",
-  "     just deploy   # deploy contracts + generate ABIs",
-  "     just start    # launch frontend / agent",
-  "  5. Modify agent logic in packages/",
+  "## Post-Scaffold",
+  "  1. just quickstart  # chain + fund + deploy + start",
+  "  2. just doctor      # health check: env, tools, 1Claw",
+  "  3. Modify agent logic in packages/",
   "",
   "## Key Architecture",
   "  - Task runner: just (https://just.systems)",
   "  - Monorepo: npm workspaces",
-  "  - Agent wallet: auto-generated + funded",
-  "  - ABIs: auto-exported (Scaffold-ETH 2 pattern)",
+  "  - Shroud: 9 upstreams + token billing or BYOK",
+  "  - Intents: 29+ EVM chains + BTC/SOL/XRP/ADA/TRX",
+  "  - MCP: 44 tools (vault, intents, signing, treasury)",
   "  - LLM streaming: Vercel AI SDK",
   "  - Scaffold UI: hooks, components, debug-contracts",
   "  - Network: scaffold.config.ts → getActiveNetwork()",
-  "  - Shroud: 6 upstream providers + token billing",
   "",
   "## Point Your AI Here",
   "  Full SKILL.md: https://scaffoldagent.xyz/SKILL.md",
@@ -197,7 +193,7 @@ export default function AgentViewToggle({
         onClick={() => setAgentView(!agentView)}
         className={`fixed top-5 right-5 z-50 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium border transition-all duration-300 cursor-pointer ${
           agentView
-            ? "bg-accent/20 border-accent/40 text-accent shadow-[0_0_20px_rgba(34,197,94,0.3)]"
+            ? "bg-accent/20 border-accent/40 text-accent shadow-[0_0_20px_rgba(220,20,60,0.3)]"
             : "bg-surface border-border text-muted hover:text-foreground hover:border-[#444]"
         }`}
       >
@@ -223,7 +219,7 @@ export default function AgentViewToggle({
           agentView ? "opacity-100 scale-100" : "hidden"
         }`}
       >
-        <div className="w-[720px] h-[560px] flex flex-col bg-black/80 backdrop-blur-sm border border-accent/30 rounded-xl overflow-hidden shadow-[0_0_40px_rgba(34,197,94,0.15)]">
+        <div className="w-[720px] h-[560px] flex flex-col bg-black/80 backdrop-blur-sm border border-accent/30 rounded-xl overflow-hidden shadow-[0_0_40px_rgba(220,20,60,0.15)]">
           {/* Terminal chrome */}
           <div className="flex items-center gap-2 px-4 py-3 border-b border-accent/20 bg-black/50">
             <div className="flex gap-1.5">

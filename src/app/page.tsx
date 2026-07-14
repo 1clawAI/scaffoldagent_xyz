@@ -12,23 +12,23 @@ const features = [
   },
   {
     title: "Frontend Ready",
-    desc: "Next.js, Vite, or Python A2A with WalletConnect, Scaffold UI components, and route skeletons.",
+    desc: "Next.js, Vite, or Python A2A with WalletConnect, Scaffold UI, shared Header nav, and suggested prompts.",
   },
   {
-    title: "LLM Providers",
-    desc: "OpenAI, Anthropic, Gemini, or 1Claw Shroud with 6 upstream options and token billing.",
+    title: "9 LLM Providers",
+    desc: "1Claw Shroud with 9 upstreams (OpenAI, Anthropic, Gemini, Mistral, Cohere, OpenRouter, Darkbloom, Venice) plus direct provider SDKs.",
   },
   {
-    title: "Secure by Default",
-    desc: "HSM-backed vault, encrypted secrets, wallet generation, and multi-agent swarm mode.",
+    title: "Multi-Chain Signing",
+    desc: "1Claw Intents API with HSM/TEE signing across 29+ EVM chains plus Bitcoin, Solana, XRP, Cardano, and Tron.",
   },
   {
     title: "Agent On-Chain Tools",
-    desc: "Vercel AI SDK tools for contract reads, 1Claw Intents simulation, and signed transaction submission.",
+    desc: "7 Vercel AI SDK tools: contract reads, intent simulate/submit/sign, signing key management, and x402 payments.",
   },
   {
-    title: "Unified Network Model",
-    desc: "Single source of truth via scaffold.config.ts — switch networks with just use-network.",
+    title: "44 MCP Tools",
+    desc: "@1claw/mcp auto-configured for Cursor and Claude Code — vault secrets, Intents, signing keys, and treasury.",
   },
 ];
 
@@ -37,32 +37,32 @@ const steps = [
     num: "1",
     title: "Scaffold",
     command: "npx scaffold-agent@latest my-agent",
-    desc: "The interactive wizard walks through project name, secrets management, agent identity, LLM provider, chain framework, and app framework. Or use -y for defaults.",
+    desc: "The interactive wizard walks through project name, secrets, agent identity, Ampersend, LLM provider, chain framework, and app framework. Or use -y for defaults.",
   },
   {
     num: "2",
-    title: "Chain",
-    command: "just chain",
-    desc: "Start a local blockchain in a second terminal. Anvil for Foundry or Hardhat node — the local RPC must be up before deploying.",
+    title: "Quickstart",
+    command: "just quickstart",
+    desc: "One command to start the local chain (background), fund wallets, deploy contracts, and launch the app. Or run just chain / just fund / just deploy / just start individually.",
   },
   {
     num: "3",
-    title: "Fund & Deploy",
-    command: "just fund && just deploy",
-    desc: "Fund the deployer and agent wallets with 100 ETH each, then deploy contracts and auto-generate TypeScript ABI types.",
+    title: "Validate",
+    command: "just doctor",
+    desc: "Health check your environment — validates .env, tools, 1Claw IDs, package installs, and network config. Run anytime to diagnose issues.",
   },
   {
     num: "4",
-    title: "Start",
+    title: "Build",
     command: "just start",
-    desc: "Launch the frontend dev server at localhost:3000. Your AI agent can now interact with contracts via the chat interface.",
+    desc: "Your AI agent is live at localhost:3000 with chat UI, contract interaction, and on-chain tools. Modify agent logic in packages/ and iterate.",
   },
 ];
 
 const faqItems = [
   {
     q: "What is scaffold-agent?",
-    a: "scaffold-agent is an open-source interactive CLI that scaffolds full-stack monorepo projects for building onchain AI agents. It generates smart contracts (Foundry or Hardhat), a frontend (Next.js, Vite, or Python), LLM integration, and agent infrastructure in one command.",
+    a: "scaffold-agent is an open-source interactive CLI that scaffolds full-stack monorepo projects for building onchain AI agents. It generates smart contracts (Foundry or Hardhat), a frontend (Next.js, Vite, or Python), LLM integration, 1Claw MCP tools, and agent infrastructure in one command.",
   },
   {
     q: "How do I install it?",
@@ -70,19 +70,19 @@ const faqItems = [
   },
   {
     q: "What LLM providers are supported?",
-    a: "OpenAI, Anthropic, Google Gemini, and 1Claw Shroud. Shroud is a proxy supporting 6 upstream providers (OpenAI, Anthropic, Google/Gemini, Mistral, Cohere, OpenRouter) with token billing or bring-your-own-key mode. All chat routes use the Vercel AI SDK for streaming.",
+    a: "1Claw Shroud supports 9 upstream providers: OpenAI, Anthropic, Google/Gemini, Mistral, Cohere, OpenRouter, Darkbloom (E2E encrypted Apple Silicon TEE), and Venice (zero-retention + optional TEE). You can also use OpenAI, Anthropic, or Gemini directly. All chat routes use the Vercel AI SDK for streaming.",
   },
   {
-    q: "What is swarm mode?",
-    a: "Swarm mode (--swarm, 1–64 agents) generates multiple Ethereum wallets for multi-agent setups. Generated apps include a swarm roster page, header agent picker, and per-agent balance and identity views. Use just swarm agents=N to add more agents after scaffolding.",
+    q: "What chains does the Intents API support?",
+    a: "1Claw Intents supports HSM/TEE transaction signing across 29 EVM mainnets (Ethereum, Base, Optimism, Arbitrum, Polygon, Avalanche, BNB, zkSync, Linea, Scroll, and more), EVM testnets, plus non-EVM chains: Bitcoin, Solana, XRP, Cardano, and Tron. Per-agent guardrails include chain restrictions, recipient allowlists, and daily spending limits.",
   },
   {
-    q: "How does it relate to Scaffold-ETH 2?",
-    a: "scaffold-agent builds on Scaffold-ETH 2 patterns from the BuidlGuidl community. It uses Scaffold UI packages (@scaffold-ui/hooks, @scaffold-ui/components, @scaffold-ui/debug-contracts), the wagmi/viem stack, RainbowKit, ABI type generation, and the /debug contracts page — then adds AI agent infrastructure on top.",
+    q: "What is @1claw/mcp?",
+    a: "When 1Claw is selected, scaffold-agent auto-generates .cursor/mcp.json and .mcp.json with the @1claw/mcp server pre-configured. This gives AI agents access to 44 MCP tools: vault secrets, Intents API (simulate, submit, sign), signing key management, treasury proposals, and execution intents.",
   },
   {
     q: "How do I point my AI assistant at scaffold-agent?",
-    a: "Have your AI fetch https://scaffoldagent.xyz/SKILL.md — it contains the full CLI reference, all flags, project structure, just commands, LLM providers, and agent tools. Add it to your project rules or tell your assistant directly.",
+    a: "Have your AI fetch https://scaffoldagent.xyz/SKILL.md — it contains the full CLI reference, all flags, project structure, just commands, LLM providers, Intents API, MCP integration, and agent tools. Add it to your project rules or tell your assistant directly.",
   },
 ];
 

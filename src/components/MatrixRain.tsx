@@ -52,8 +52,7 @@ export default function MatrixRain() {
         ctx.fillStyle = "#fff";
         ctx.fillText(char, x, y);
 
-        // Trail characters are green
-        ctx.fillStyle = `rgba(34, 197, 94, ${0.3 + Math.random() * 0.3})`;
+        ctx.fillStyle = `rgba(220, 20, 60, ${0.3 + Math.random() * 0.3})`;
         ctx.fillText(
           chars[Math.floor(Math.random() * chars.length)],
           x,
