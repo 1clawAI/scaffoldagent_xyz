@@ -1,4 +1,3 @@
-import Image from "next/image";
 import AgentViewToggle from "@/components/AgentViewToggle";
 import CopyButton from "@/components/CopyButton";
 
@@ -99,15 +98,6 @@ export default function Home() {
       <AgentViewToggle>
         <article className="relative z-10 max-w-2xl w-full text-center">
           {/* Hero */}
-          <Image
-            src="/logo-medium.png"
-            alt="scaffold-agent logo"
-            width={280}
-            height={200}
-            className="mx-auto mb-6 w-[200px] sm:w-[280px] h-auto"
-            priority
-          />
-
           <p className="inline-block text-xs font-semibold tracking-widest uppercase text-accent bg-accent-dim border border-accent/20 px-3.5 py-1.5 rounded-full mb-6">
             Open Source CLI
           </p>
