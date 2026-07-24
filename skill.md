@@ -97,6 +97,11 @@ Strict parsing: unknown options **error**. Full list: `scaffold-agent --help`.
 | `--framework` | `nextjs` \| `vite` \| `python` |
 | `--agent` | `generate` \| `none` |
 | `--ampersend` | `yes` \| `no` |
+| `--ampersend-signing-key` | Ampersend signing key (vault or encrypted `.env`) |
+| `--ampersend-smart-account` | Ampersend smart account address |
+| `--graph` | `none` \| `mcp` \| `x402` \| `both` — The Graph subgraph integration |
+| `--graph-api-key` | Optional Graph API key (vault path `api-keys/thegraph`) |
+| `--llm-api-key` | Direct provider API key (non-Shroud LLM) |
 | `--skip-npm-install` | |
 | `--skip-auto-fund` | |
 | `--swarm <n>` | 1–64 agent wallets; extras in `SWARM_AGENT_KEYS_JSON` |
@@ -139,14 +144,26 @@ Strict parsing: unknown options **error**. Full list: `scaffold-agent --help`.
 
 `lib/agent-onchain-tools.ts` — Vercel AI SDK `tool`s in the chat route:
 
-- `list_deployed_contracts` — enumerate addresses from `deployedContracts.ts`.
-- `contract_read` — call any view/pure function via RPC (defaults to active network).
-- `oneclaw_intent_simulate` — simulate via 1Claw Intents + Tenderly.
-- `oneclaw_intent_submit` — submit signed intent to 1Claw TEE.
-- `oneclaw_intent_sign_only` — sign without broadcasting (for MEV protection, Flashbots, custom relayers).
-- `oneclaw_list_signing_keys` — list the agent's HSM-backed signing keys (address, chain, status).
-- `oneclaw_list_transactions` — list recent Intents API transactions.
-- `x402_paid_fetch` — paid HTTP requests over x402 (when Ampersend is enabled).
+**Always included:** `list_project_addresses`, `get_wallet_balance`, `resolve_ens`, `lookup_erc8004_agents`, `list_deployed_contracts`, `contract_read`.
+
+**When 1Claw SDK is included:** `oneclaw_check_signing_balances`, `oneclaw_intent_simulate`, `oneclaw_intent_submit`, `oneclaw_intent_sign_only`, `oneclaw_list_signing_keys`, `oneclaw_list_transactions`.
+
+**When Ampersend is enabled:** `x402_paid_fetch`.
+
+**When The Graph is enabled (`--graph x402` or `both`):** `graph_search_subgraphs`, `graph_subgraph_query` (+ `/data` page, `lib/graph-client.ts`, optional `@graphprotocol/subgraph-mcp` in MCP config when `mcp` or `both`).
+
+---
+
+## The Graph integration (`--graph`)
+
+| Mode | What it adds |
+|---|---|
+| `none` | No Graph integration (default under `-y`) |
+| `mcp` | `@graphprotocol/subgraph-mcp` in `.cursor/mcp.json` / `.mcp.json` |
+| `x402` | Runtime agent tools + `/data` page + `lib/graph-client.ts` |
+| `both` | MCP for IDE + x402 agent tools at runtime |
+
+Optional `--graph-api-key` or vault `api-keys/thegraph` (`GRAPH_API_KEY`). Substreams subgraphs may require x402 USDC per query.
 
 ---
 

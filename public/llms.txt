@@ -1,6 +1,6 @@
 # scaffold-agent
 
-> Interactive CLI to scaffold monorepo projects for onchain AI agents
+> Interactive CLI to scaffold monorepo projects for onchain AI agents (v0.1.42)
 
 scaffold-agent generates full-stack monorepo projects with smart contracts, a frontend, and AI agent infrastructure in one command.
 
@@ -16,7 +16,7 @@ scaffold-agent --help                # full flag list
 
 To give your AI agent full knowledge of scaffold-agent, have it fetch:
 
-- **Full skill file:** https://scaffoldagent.xyz/SKILL.md — complete CLI reference, flags, generated project structure, just commands, LLM providers, network model, Intents API, MCP integration, and agent on-chain tools.
+- **Full skill file:** https://scaffoldagent.xyz/SKILL.md — complete CLI reference, flags, generated project structure, just commands, LLM providers, network model, Intents API, MCP integration, The Graph integration, and agent on-chain tools.
 - **Ethereum best practices:** https://ethskills.com/SKILL.md — Solidity patterns, contract deployment, testing, and frontend integration guidance.
 
 ### How to point your AI here
@@ -43,10 +43,11 @@ scaffold-agent is an open-source CLI that scaffolds a monorepo containing:
 - Smart contracts (Foundry or Hardhat) with auto-deploy and ABI type generation
 - Frontend (Next.js, Vite, or Python/Google A2A) with WalletConnect integration
 - An LLM-powered agent with an Ethereum wallet for onchain interaction
-- Agent on-chain tools (contract reads, 1Claw Intents simulate/submit/sign, signing key management)
+- Agent on-chain tools: wallet balances, ENS resolution, ERC-8004 lookup, contract reads, 1Claw Intents, optional Graph subgraph queries
 - Unified network model with `scaffold.config.ts` and `getActiveNetwork()`
 - Optional multi-agent swarm mode (1–64 wallets with roster and UI)
 - @1claw/mcp auto-configured (44 MCP tools for vault, Intents, signing keys, treasury)
+- Optional The Graph integration (`--graph mcp|x402|both`) with `/data` page and subgraph agent tools
 - HSM signing key provisioning across EVM + Bitcoin, Solana, XRP, Cardano, Tron
 
 Supports 9 LLM upstream providers via 1Claw Shroud (OpenAI, Anthropic, Gemini, Mistral, Cohere, OpenRouter, Darkbloom, Venice) plus direct OpenAI/Anthropic/Gemini. Secret management via HSM vault, encrypted files, or .env.
@@ -67,9 +68,11 @@ just doctor       # health check: validate env, tools, and 1Claw IDs
 
 ## Key Features
 
+- 8-step interactive wizard (project, secrets, agent, Ampersend, The Graph, LLM, chain, framework)
 - Non-interactive mode (`-y`) for CI/automation with full flag control
 - Config file support (`--from-config agent.json`, `--dump-config`)
 - Swarm mode (`--swarm <n>`) for multi-agent setups
+- The Graph subgraph integration (`--graph none|mcp|x402|both`) with MCP + x402 agent tools
 - 1Claw Shroud LLM proxy with 9 upstream providers + token billing or BYOK
 - 1Claw Intents API: HSM/TEE signing across 29+ EVM chains + Bitcoin, Solana, XRP, Cardano, Tron
 - @1claw/mcp: 44 MCP tools auto-configured for Cursor and Claude Code
@@ -79,7 +82,7 @@ just doctor       # health check: validate env, tools, and 1Claw IDs
 - `just quickstart` (one-command local setup) and `just doctor` (health check)
 - Debug contracts page (`/debug` on Next.js)
 - ERC-8004 / Agent0 identity page (`/identity`)
-- Shared Header nav (Chat, Balances, ENS, Identity, Swarm, Debug)
+- Shared Header nav (Chat, Balances, ENS, Identity, Swarm, Data, Debug)
 
 ## Built by
 

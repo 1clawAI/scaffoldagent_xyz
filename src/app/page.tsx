@@ -23,11 +23,11 @@ const features = [
   },
   {
     title: "Agent On-Chain Tools",
-    desc: "7 Vercel AI SDK tools: contract reads, intent simulate/submit/sign, signing key management, and x402 payments.",
+    desc: "Wallet balances, ENS resolution, ERC-8004 lookup, contract reads, 1Claw Intents, and optional Graph subgraph queries via Vercel AI SDK tools.",
   },
   {
-    title: "44 MCP Tools",
-    desc: "@1claw/mcp auto-configured for Cursor and Claude Code — vault secrets, Intents, signing keys, and treasury.",
+    title: "The Graph Integration",
+    desc: "Optional subgraph data via --graph: MCP for IDE, x402 agent tools at runtime, /data page, and graph_search_subgraphs + graph_subgraph_query.",
   },
 ];
 
@@ -36,7 +36,7 @@ const steps = [
     num: "1",
     title: "Scaffold",
     command: "npx scaffold-agent@latest my-agent",
-    desc: "The interactive wizard walks through project name, secrets, agent identity, Ampersend, LLM provider, chain framework, and app framework. Or use -y for defaults.",
+    desc: "The interactive wizard walks through project name, secrets, agent identity, Ampersend, The Graph, LLM provider, chain framework, and app framework. Or use -y for defaults.",
   },
   {
     num: "2",
@@ -74,6 +74,10 @@ const faqItems = [
   {
     q: "What chains does the Intents API support?",
     a: "1Claw Intents supports HSM/TEE transaction signing across 29 EVM mainnets (Ethereum, Base, Optimism, Arbitrum, Polygon, Avalanche, BNB, zkSync, Linea, Scroll, and more), EVM testnets, plus non-EVM chains: Bitcoin, Solana, XRP, Cardano, and Tron. Per-agent guardrails include chain restrictions, recipient allowlists, and daily spending limits.",
+  },
+  {
+    q: "What is The Graph integration?",
+    a: "Use --graph none|mcp|x402|both during scaffolding. MCP adds @graphprotocol/subgraph-mcp to your IDE config. x402 adds runtime agent tools (graph_search_subgraphs, graph_subgraph_query), a /data page, and lib/graph-client.ts. Optional GRAPH_API_KEY or vault path api-keys/thegraph; Substreams subgraphs may require x402 USDC per query.",
   },
   {
     q: "What is @1claw/mcp?",

@@ -101,7 +101,7 @@ const faqItems = [
   {
     question: "How do I install and run scaffold-agent?",
     answer:
-      "Run 'npx scaffold-agent@latest' in your terminal. No global installation is required — npx downloads and runs the latest version. You can also pass a project name directly: 'npx scaffold-agent@latest my-agent'. The CLI walks you through 7 steps: project name, secrets management, agent identity, Ampersend SDK, LLM provider, chain framework, and app framework. Use 'just quickstart' for one-command local setup after scaffolding.",
+      "Run 'npx scaffold-agent@latest' in your terminal. No global installation is required — npx downloads and runs the latest version. You can also pass a project name directly: 'npx scaffold-agent@latest my-agent'. The CLI walks you through 8 steps: project name, secrets management, agent identity, Ampersend SDK, The Graph integration, LLM provider, chain framework, and app framework. Use 'just quickstart' for one-command local setup after scaffolding.",
   },
   {
     question: "What LLM providers does scaffold-agent support?",
@@ -112,6 +112,11 @@ const faqItems = [
     question: "What chains does the Intents API support?",
     answer:
       "1Claw Intents supports HSM/TEE transaction signing across 29 EVM mainnets (Ethereum, Base, Optimism, Arbitrum, Polygon, Avalanche, BNB, zkSync, Linea, Scroll, and more), EVM testnets, plus non-EVM chains: Bitcoin, Solana, XRP, Cardano, and Tron. Per-agent guardrails include allowed chains, recipient allowlists, per-tx value caps, and daily spending limits.",
+  },
+  {
+    question: "What is The Graph integration in scaffold-agent?",
+    answer:
+      "Use --graph none|mcp|x402|both during scaffolding. MCP adds @graphprotocol/subgraph-mcp to .cursor/mcp.json for IDE-time subgraph queries. x402 adds runtime agent tools (graph_search_subgraphs, graph_subgraph_query), a /data page, and lib/graph-client.ts. Optional GRAPH_API_KEY or vault path api-keys/thegraph; Substreams-powered subgraphs may require x402 USDC payment per query.",
   },
   {
     question: "What is @1claw/mcp?",
@@ -178,7 +183,9 @@ export default function RootLayout({
       "9 LLM providers via 1Claw Shroud (OpenAI, Anthropic, Gemini, Mistral, Cohere, OpenRouter, Darkbloom, Venice)",
       "HSM/TEE multi-chain signing via 1Claw Intents (29+ EVM chains + Bitcoin, Solana, XRP, Cardano, Tron)",
       "44 MCP tools via @1claw/mcp (vault, Intents, signing keys, treasury)",
-      "Agent on-chain tools (contract reads, intent simulate/submit/sign, signing key management, x402 payments)",
+      "Agent on-chain tools (wallet balances, ENS, ERC-8004, contract reads, 1Claw Intents, optional Graph subgraph queries)",
+      "The Graph subgraph integration (--graph mcp|x402|both) with /data page",
+      "@1claw/mcp: 44 MCP tools auto-configured for Cursor and Claude Code",
       "Agent Ethereum wallet generation",
       "Multi-agent swarm mode (1-64 agents)",
       "ABI type generation (Scaffold-ETH 2 pattern)",

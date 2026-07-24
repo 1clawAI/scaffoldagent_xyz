@@ -40,6 +40,11 @@ scaffold-agent --version
 | `--framework` | `nextjs` \| `vite` \| `python` |
 | `--agent` | `generate` \| `none` |
 | `--ampersend` | `yes` \| `no` |
+| `--ampersend-signing-key` | Ampersend signing key (stored in vault or encrypted `.env`) |
+| `--ampersend-smart-account` | Ampersend smart account address |
+| `--graph` | `none` \| `mcp` \| `x402` \| `both` — The Graph subgraph integration |
+| `--graph-api-key` | Optional Graph API key (fallback from x402; vault path `api-keys/thegraph`) |
+| `--llm-api-key` | Direct Gemini/OpenAI/Anthropic API key (non-Shroud LLM) |
 | `--swarm <n>` | 1–64 agent wallets with roster and swarm page |
 | `--from-config <file>` | Scaffold from a saved configuration file (CLI flags override) |
 | `--dump-config` | Output merged configuration JSON without scaffolding |
@@ -47,15 +52,16 @@ scaffold-agent --version
 | `--skip-npm-install` | Skip npm installation |
 | `--skip-auto-fund` | Skip auto-funding deployer wallet |
 
-## Scaffold Wizard (7 Steps)
+## Scaffold Wizard (8 Steps)
 
 1. **Project name** — alphanumeric, hyphens, underscores
 2. **Secrets management** — 1Claw (HSM vault), Encrypted file (AES-256-GCM), or Plain `.env`
 3. **Agent identity** — generate Ethereum wallet(s) for the agent (`--swarm` for multiple)
 4. **Ampersend SDK** — optional `@ampersend_ai/ampersend-sdk` integration (signing key stored in vault or encrypted env; adds `x402_paid_fetch` tool)
-5. **LLM Provider** — 1Claw (Shroud), Gemini, OpenAI, or Anthropic
-6. **Chain framework** — Foundry, Hardhat, or None
-7. **App framework** — Next.js, Vite, or Python (Google A2A)
+5. **The Graph** — optional subgraph integration: `none`, `mcp` (IDE via `@graphprotocol/subgraph-mcp`), `x402` (runtime agent tools), or `both`
+6. **LLM Provider** — 1Claw (Shroud), Gemini, OpenAI, or Anthropic
+7. **Chain framework** — Foundry, Hardhat, or None
+8. **App framework** — Next.js, Vite, or Python (Google A2A)
 
 ## What It Generates
 
@@ -84,15 +90,18 @@ project-root/
 │       │   ├── balances/page.tsx     # deployer + agent balances
 │       │   ├── ens/page.tsx          # ENS resolution + registration links
 │       │   ├── swarm/page.tsx        # swarm list + local keygen hints
+│       │   ├── data/page.tsx         # The Graph subgraph explorer (when --graph enabled)
 │       │   ├── debug/page.tsx        # deployed contracts (Next only)
 │       │   └── api/
 │       │       ├── chat/route.ts     # LLM streaming API (Vercel AI SDK)
-│       │       └── agent0/lookup/route.ts
+│       │       ├── agent0/lookup/route.ts
+│       │       └── graph/            # search + query routes (when --graph enabled)
 │       ├── components/
-│       │   ├── Header.tsx            # shared nav (Chat, Balances, ENS, Identity, Swarm, Debug)
+│       │   ├── Header.tsx            # shared nav (Chat, Balances, ENS, Identity, Swarm, Data, Debug)
 │       │   └── ui/                   # shadcn components
 │       ├── lib/
-│       │   └── agent-onchain-tools.ts  # AI tool definitions for contract interaction
+│       │   ├── agent-onchain-tools.ts  # AI tools for wallet, ENS, contracts, intents, Graph
+│       │   └── graph-client.ts       # The Graph gateway + x402 client (when --graph enabled)
 │       ├── contracts/                # auto-generated ABI types
 │       └── ...
 ├── .cursor/mcp.json              # 1Claw MCP for Cursor (when 1Claw is selected)
@@ -156,16 +165,47 @@ Generated projects use a single source of truth for the active EVM network:
 
 Next.js and Vite projects include `lib/agent-onchain-tools.ts` — preset Vercel AI SDK tools wired into the chat route:
 
+**Always included:**
+
+- **`list_project_addresses`** — list agent + deployer addresses from `.env` (use before balance checks).
+- **`get_wallet_balance`** — native + configured ERC-20 balances for an address (defaults to agent wallet).
+- **`resolve_ens`** — resolve ENS names to addresses (and reverse lookup).
+- **`lookup_erc8004_agents`** — search ERC-8004 / Agent0 registry for on-chain agent identities.
 - **`list_deployed_contracts`** — enumerate addresses from `deployedContracts.ts` (hints active chain).
 - **`contract_read`** — call any view/pure function via RPC using the deployed ABI (defaults to active network).
-- **`oneclaw_intent_simulate`** — simulate a transaction via 1Claw Intents + Tenderly (when 1Claw SDK is included).
+
+**When 1Claw SDK is included:**
+
+- **`oneclaw_check_signing_balances`** — list HSM signing keys and their on-chain balances.
+- **`oneclaw_intent_simulate`** — simulate a transaction via 1Claw Intents + Tenderly.
 - **`oneclaw_intent_submit`** — submit a signed transaction intent to 1Claw's HSM/TEE (keys never in the model).
-- **`oneclaw_intent_sign_only`** — sign a transaction without broadcasting (for MEV protection, Flashbots, custom relayers).
+- **`oneclaw_intent_sign_only`** — sign a transaction without broadcasting (MEV protection, Flashbots, custom relayers).
 - **`oneclaw_list_signing_keys`** — list the agent's HSM-backed signing keys (address, chain, status).
 - **`oneclaw_list_transactions`** — list recent Intents API transactions for this agent.
-- **`x402_paid_fetch`** — paid HTTP requests over x402 (when Ampersend is enabled).
+
+**When Ampersend is enabled:**
+
+- **`x402_paid_fetch`** — paid HTTP requests over x402.
+
+**When The Graph is enabled (`--graph x402` or `both`):**
+
+- **`graph_search_subgraphs`** — search The Graph Network by keyword (e.g. `uniswap`, `aave`, `ens`).
+- **`graph_subgraph_query`** — run GraphQL queries against a subgraph (API key or x402 USDC payment).
 
 The 1Claw intent tools default the `chain` parameter to the active network's 1Claw slug via `ONECLAW_CHAIN_NAMES` — covering all 29 EVM mainnets, testnets, plus non-EVM chains (Bitcoin, Solana, XRP, Cardano, Tron).
+
+## The Graph Integration
+
+`--graph` controls subgraph data access in generated projects:
+
+| Mode | What it adds |
+|---|---|
+| `none` | No Graph integration (default) |
+| `mcp` | `@graphprotocol/subgraph-mcp` in `.cursor/mcp.json` / `.mcp.json` for IDE-time queries |
+| `x402` | Runtime agent tools (`graph_search_subgraphs`, `graph_subgraph_query`) + `/data` page + `lib/graph-client.ts` |
+| `both` | MCP for IDE + x402 agent tools at runtime |
+
+Optional **`--graph-api-key`** or vault path **`api-keys/thegraph`** (`GRAPH_API_KEY`) — some subgraphs work with an API key; Substreams-powered subgraphs may require x402 USDC payment per query. If a query returns 402, search for an alternate subgraph ID via `graph_search_subgraphs`.
 
 ## 1Claw MCP Integration
 
@@ -254,9 +294,11 @@ When you choose 1Claw for secrets:
 - Intents API: HSM/TEE signing across 29+ EVM chains + Bitcoin, Solana, XRP, Cardano, Tron
 - Built on Scaffold-ETH 2, Scaffold UI, RainbowKit, wagmi, and viem
 - 1Claw-inspired dark theme (crimson accent, Inter font, sticky glass header)
-- Shared Header nav (Chat, Balances, ENS, Identity, Swarm, Debug)
+- Shared Header nav (Chat, Balances, ENS, Identity, Swarm, Data, Debug)
 - Suggested prompts on empty chat state
+- The Graph subgraph integration (`--graph mcp|x402|both`) with `/data` page and agent tools
 - Burner wallet for local dev via burner-connector
+- Pinned `@1claw/sdk` **0.41.2** in generated projects (when 1Claw is selected)
 
 ## Key Environment Variables
 
@@ -274,6 +316,7 @@ When you choose 1Claw for secrets:
 | `SHROUD_DEFAULT_MODEL` | Override default model |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | Direct Gemini API key |
 | `GOOGLE_GENERATIVE_AI_MODEL` | Override Gemini model (default `gemini-2.5-flash`) |
+| `GRAPH_API_KEY` | The Graph API key (optional; vault path `api-keys/thegraph`; x402 fallback for Substreams subgraphs) |
 
 ## Ethereum Development Reference
 
